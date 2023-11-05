@@ -1,4 +1,4 @@
-// Write a Java program that displays the number of characters, lines and words in a text 
+// Write a Java program that displays the number of characters,. lines and words in a text
 // file.
 // Program:
 import java.io.BufferedReader;
