@@ -1,27 +1,27 @@
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 class Solution {
+
     public int[] frequencySort(int[] nums) {
-        Map<Integer, Integer> frequencyMap = new HashMap<>();
+        Map<Integer, Integer> freq = new HashMap<>();
         for (int num : nums) {
-            frequencyMap.put(num, frequencyMap.getOrDefault(num, 0) + 1);
+            freq.put(num, freq.getOrDefault(num, 0) + 1);
         }
 
-        Integer[] numsArray = Arrays.stream(nums).boxed().toArray(Integer[]::new);
-        Arrays.sort(numsArray, (a, b) -> {
-            int freqA = frequencyMap.get(a);
-            int freqB = frequencyMap.get(b);
-            if (freqA != freqB) {
-                return Integer.compare(freqA, freqB);
-            } else {
+     
+        Integer[] numsObj = new Integer[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            numsObj[i] = nums[i];
+        }
+
+        Arrays.sort(numsObj, (a, b) -> {
+            if (freq.get(a).equals(freq.get(b))) {
                 return Integer.compare(b, a);
             }
+            return Integer.compare(freq.get(a), freq.get(b));
         });
 
+        
         for (int i = 0; i < nums.length; i++) {
-            nums[i] = numsArray[i];
+            nums[i] = numsObj[i];
         }
 
         return nums;
