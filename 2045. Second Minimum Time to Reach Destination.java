@@ -1,53 +1,57 @@
-import java.util.*;
-
 class Solution {
     public int secondMinimum(int n, int[][] edges, int time, int change) {
-        // Graph adjacency list representation
-        List<List<Integer>> graph = new ArrayList<>();
-        for (int i = 0; i <= n; i++) {
-            graph.add(new ArrayList<>());
-        }
+        Map<Integer, List<Integer>> adj = new HashMap<>();
         for (int[] edge : edges) {
-            graph.get(edge[0]).add(edge[1]);
-            graph.get(edge[1]).add(edge[0]);
+            int a = edge[0], b = edge[1];
+            adj.computeIfAbsent(a, value -> new ArrayList<Integer>()).add(b);
+            adj.computeIfAbsent(b, value -> new ArrayList<Integer>()).add(a);
         }
-        
-        // Priority queue for BFS: (current time, current vertex, visits to the vertex)
-        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]);
-        pq.offer(new int[]{0, 1, 0}); // Starting from vertex 1 at time 0 with 0 visits
-        
-        int[][] times = new int[n + 1][2]; // Track two smallest times to reach each vertex
-        for (int i = 0; i <= n; i++) {
-            Arrays.fill(times[i], Integer.MAX_VALUE);
+        int[] dist1 = new int[n + 1], dist2 = new int[n + 1], freq = new int[n + 1];
+   
+        for (int i = 1; i <= n; i++) {
+            dist1[i] = dist2[i] = Integer.MAX_VALUE;
+            freq[i] = 0;
         }
-        times[1][0] = 0; // First time to reach vertex 1 is 0
-        
+
+        PriorityQueue<int []> pq = new PriorityQueue<>((a, b) -> (a[1] - b[1]));
+        pq.offer(new int[] {1, 0});
+        dist1[1] = 0;
+
         while (!pq.isEmpty()) {
-            int[] current = pq.poll();
-            int currentTime = current[0], currentNode = current[1], visits = current[2];
+            int [] temp = pq.poll();
+            int node = temp[0];
+            int time_taken = temp[1];
+
+            freq[node]++;
+
             
-            // Traverse all neighboring vertices
-            for (int neighbor : graph.get(currentNode)) {
-                int arrivalTime = currentTime + time;
-                int waitTime = 0;
-                // Determine if waiting is required due to traffic signals
-                if ((arrivalTime / change) % 2 == 1) {
-                    waitTime = change - (arrivalTime % change);
-                }
-                int newTime = arrivalTime + waitTime;
-                
-                // Check the first and second minimum times
-                if (newTime < times[neighbor][0]) {
-                    times[neighbor][1] = times[neighbor][0];
-                    times[neighbor][0] = newTime;
-                    pq.offer(new int[]{newTime, neighbor, visits + 1});
-                } else if (newTime > times[neighbor][0] && newTime < times[neighbor][1]) {
-                    times[neighbor][1] = newTime;
-                    pq.offer(new int[]{newTime, neighbor, visits + 1});
+            if (freq[node] == 2 && node == n)
+                return time_taken;
+            // If the current light is red, wait till the path turns green.
+            if ((time_taken / change) % 2 == 1)
+                time_taken = change * (time_taken / change + 1) + time;
+            else
+                time_taken = time_taken + time;
+
+            if (!adj.containsKey(node))
+                continue;
+            for (int neighbor : adj.get(node)) {
+              
+                if (freq[neighbor] == 2)
+                    continue;
+
+               
+                if (dist1[neighbor] > time_taken) {
+                    dist2[neighbor] = dist1[neighbor];
+                    dist1[neighbor] = time_taken;
+                    pq.offer(new int [] {neighbor, time_taken});
+                } else if (dist2[neighbor] > time_taken && dist1[neighbor] != time_taken) {
+                    dist2[neighbor] = time_taken;
+                    pq.offer(new int[] {neighbor, time_taken});
                 }
             }
+
         }
-        
-        return times[n][1]; // The second minimum time to reach vertex n
+        return 0;
     }
 }
