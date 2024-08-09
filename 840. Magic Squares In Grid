@@ -1,0 +1,76 @@
+class Solution {
+    public int numMagicSquaresInside(int[][] grid) {
+        int rows = grid.length;
+        int cols = grid[0].length;
+        int count = 0;
+
+       
+        for (int i = 0; i <= rows - 3; i++) {
+            for (int j = 0; j <= cols - 3; j++) {
+            
+                int[][] subgrid = new int[3][3];
+                for (int k = 0; k < 3; k++) {
+                    for (int l = 0; l < 3; l++) {
+                        subgrid[k][l] = grid[i + k][j + l];
+                    }
+                }
+                
+                if (isMagicSquare(subgrid)) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    private boolean isMagicSquare(int[][] square) {
+      
+        boolean[] seen = new boolean[10];
+        int sum = 0;
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                int num = square[i][j];
+                if (num < 1 || num > 9 || seen[num]) {
+                    return false;
+                }
+                seen[num] = true;
+            }
+        }
+
+      
+        for (int i = 0; i < 3; i++) {
+            int rowSum = 0;
+            for (int j = 0; j < 3; j++) {
+                rowSum += square[i][j];
+            }
+            if (rowSum != 15) {
+                return false;
+            }
+        }
+
+        
+        for (int j = 0; j < 3; j++) {
+            int colSum = 0;
+            for (int i = 0; i < 3; i++) {
+                colSum += square[i][j];
+            }
+            if (colSum != 15) {
+                return false;
+            }
+        }
+
+        
+        int diag1Sum = 0, diag2Sum = 0;
+        for (int i = 0; i < 3; i++) {
+            diag1Sum += square[i][i];
+            diag2Sum += square[i][2 - i];
+        }
+        if (diag1Sum != 15 || diag2Sum != 15) {
+            return false;
+        }
+
+        return true;
+    }
+}
